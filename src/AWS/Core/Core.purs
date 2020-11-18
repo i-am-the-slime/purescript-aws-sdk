@@ -7,7 +7,8 @@ import Data.Either (Either, either)
 import Data.Formatter.DateTime (formatDateTime)
 import Data.Newtype (class Newtype)
 import Effect.Exception (Error, error)
-import Simple.JSON (class WriteForeign)
+import Simple.JSON (class WriteForeign, class ReadForeign)
+import Data.Maybe (Maybe)
 
 --
 newtype AccessKeyId
@@ -76,3 +77,38 @@ formatted d = formatDateTime "YYYY-MM-DD" d
 
 raiseEither :: forall m r. MonadThrow Error m => Either String r -> m r
 raiseEither = either (error >>> throwError) pure
+
+newtype NextPageToken
+  = NextPageToken String
+
+derive instance ntNextPageToken :: Newtype NextPageToken _
+
+derive newtype instance showNextPageToken :: Show NextPageToken
+
+derive newtype instance wfNextPageToken :: WriteForeign NextPageToken
+
+derive newtype instance rfNextPageToken :: ReadForeign NextPageToken
+
+type GroupDefinition
+  = { key :: Maybe String }
+
+type DateInterval
+  = { start :: DateTime, end :: DateTime }
+
+type MetricValue
+  = { amount :: Maybe String }
+
+type Metric
+  = { unblendedCost :: Maybe MetricValue }
+
+type Group
+  = { keys :: Maybe (Array String), metrics :: Maybe Metric }
+
+type ResultByTime
+  = { timePeriod :: Maybe DateInterval, groups :: Maybe (Array Group) }
+
+type CostAndUsage
+  = { resultsByTime :: Maybe (Array ResultByTime)
+    , groupDefinitions :: Maybe (Array GroupDefinition)
+    , nextPageToken :: Maybe NextPageToken
+    }

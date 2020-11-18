@@ -1,7 +1,6 @@
 module AWS.Lambda where
 
 import Prelude
-
 import AWS.Core (Arn(..), Region(..), AccessKeyId(..), SecretAccessKey(..))
 import Control.Promise (Promise, toAffE)
 import Data.Function.Uncurried (Fn2, runFn2)
@@ -10,10 +9,10 @@ import Effect (Effect)
 import Effect.Aff (Aff)
 import Simple.JSON (class WriteForeign, writeJSON)
 
-type InternalLambdaParams = {
-    "FunctionName" :: String,
-    "Payload" :: String
-}
+type InternalLambdaParams
+  = { "FunctionName" :: String
+    , "Payload" :: String
+    }
 
 foreign import data Lambda :: Type
 
@@ -42,8 +41,8 @@ foreign import invokeFunctionImpl :: forall output. Fn2 Lambda InternalLambdaPar
 
 invokeFunction :: forall input output. WriteForeign input => Lambda -> Arn -> input -> Aff output
 invokeFunction client (Arn arn) input = runFn2 invokeFunctionImpl client params # toAffE
-    where
-      params = {
-          "FunctionName" : arn,
-          "Payload" : writeJSON input
-      }
+  where
+  params =
+    { "FunctionName": arn
+    , "Payload": writeJSON input
+    }
