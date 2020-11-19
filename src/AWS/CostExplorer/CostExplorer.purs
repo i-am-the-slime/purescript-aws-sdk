@@ -111,9 +111,8 @@ type InternalGetCostAndUsageParams
     }
 
 getCostAndUsage ::
-  forall a.
   CE ->
-  { start :: DateTime, end :: DateTime | a } ->
+  DateInterval ->
   Aff CostAndUsage
 getCostAndUsage ce range = do
   start <- raiseEither $ toIso8601Date range.start
