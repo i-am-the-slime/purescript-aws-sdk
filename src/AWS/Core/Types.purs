@@ -121,13 +121,13 @@ type Metric
   = { unblendedCost :: Maybe MetricValue }
 
 type Group
-  = { keys :: Maybe (Array Key), metrics :: Maybe Metric }
+  = { keys :: Array Key, metrics :: Maybe Metric }
 
 type ResultByTime
-  = { timePeriod :: Maybe DateInterval, groups :: Maybe (Array Group) }
+  = { timePeriod :: Maybe DateInterval, groups :: Array Group }
 
 type CostAndUsage
-  = { resultsByTime :: Maybe (Array ResultByTime)
-    , groupDefinitions :: Maybe (Array GroupDefinition)
+  = { resultsByTime :: Array ResultByTime
+    , groupDefinitions :: Array GroupDefinition
     , nextPageToken :: Maybe NextPageToken
     }

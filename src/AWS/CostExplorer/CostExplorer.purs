@@ -2,7 +2,7 @@ module AWS.CostExplorer where
 
 import Prelude
 import AWS.Core.Client (makeClientHelper, makeDefaultClient)
-import AWS.Core.Util (raiseEither, toIso8601Date)
+import AWS.Core.Util (raiseEither, toIso8601Date, joinNullArr)
 import AWS.Core.Types (CostAndUsage, DateInterval, DefaultClientProps, DefaultClientPropsR, Group, GroupDefinition, MetricValue, NextPageToken(..), ResultByTime, Key(..), Amount(..), Metric)
 import Control.Promise (Promise)
 import Control.Promise as Promise
@@ -44,8 +44,8 @@ type InternalGetCostAndUsageResponse
 
 toCostAndUsage :: InternalGetCostAndUsageResponse -> CostAndUsage
 toCostAndUsage internal =
-  { resultsByTime: toMaybe internal."ResultsByTime" <#> (\internalResults -> internalResults <#> (toResultByTime))
-  , groupDefinitions: toMaybe internal."GroupDefinitions" <#> (\internalGD -> internalGD <#> (toGroupDefinition))
+  { resultsByTime: joinNullArr internal."ResultsByTime" <#> toResultByTime
+  , groupDefinitions: joinNullArr internal."GroupDefinitions" <#> toGroupDefinition
   , nextPageToken: toMaybe internal."NextPageToken" <#> NextPageToken
   }
 
@@ -61,7 +61,7 @@ type InternalResultByTime
 toResultByTime :: InternalResultByTime -> ResultByTime
 toResultByTime internal =
   { timePeriod: toMaybe internal."TimePeriod" >>= toDateInterval
-  , groups: toMaybe internal."Groups" <#> (\internalGroups -> internalGroups <#> (toGroup))
+  , groups: joinNullArr internal."Groups" <#> toGroup
   }
 
 type InternalDateInterval
@@ -83,7 +83,7 @@ type InternalGroup
 
 toGroup :: InternalGroup -> Group
 toGroup internal =
-  { keys: toMaybe internal."Keys" <#> (\keys -> keys <#> Key)
+  { keys: joinNullArr internal."Keys" <#> Key
   , metrics: toMaybe internal."Metrics" <#> toMetric
   }
 
